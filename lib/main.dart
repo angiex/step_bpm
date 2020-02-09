@@ -4,6 +4,7 @@ import 'dart:core';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:esense_flutter/esense.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_blue/flutter_blue.dart';
@@ -34,7 +35,7 @@ class BPMState extends State<BPMPage> {
   String eSenseName = 'eSense-0176';
   FlutterBlue flutterBlue = FlutterBlue.instance;
 
-  String _deviceStatus = "";
+  String _deviceStatus = "no_bluetooth";
   bool sampling = false;
 
   String _event = "";
@@ -52,6 +53,10 @@ class BPMState extends State<BPMPage> {
   @override
   void initState() {
     super.initState();
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown
+    ]);
     bleOn();
   }
 
@@ -69,7 +74,7 @@ class BPMState extends State<BPMPage> {
           _connectToESense();
           break;
         case BluetoothState.off:
-        // TODO
+        // do nothing
           break;
         case BluetoothState.turningOff:
           if (sampling) _pauseListenToSensorEvents();
@@ -87,8 +92,6 @@ class BPMState extends State<BPMPage> {
 
     // if you want to get the connection events when connecting, set up the listener BEFORE connecting...
     ESenseManager.connectionEvents.listen((event) {
-      print('CONNECTION event: $event');
-
       setState(() {
         switch (event.type) {
           case ConnectionType.connected:
@@ -144,7 +147,6 @@ class BPMState extends State<BPMPage> {
 
     // subscribe to sensor event from the eSense device
     subscription = ESenseManager.sensorEvents.listen((event) {
-      print('SENSOR event: $event');
       setState(() {
         _event = event.toString();
         _accReadX = event.accel[0];
@@ -195,7 +197,12 @@ class BPMState extends State<BPMPage> {
             child: ListView(
               padding: EdgeInsets.all(12.0),
               children: <Widget>[
-                InfoBox(_deviceStatus, eSenseName, _stepCount, stopwatch.elapsedMilliseconds / 1000.0),
+                InfoBox(
+                    _deviceStatus,
+                    eSenseName,
+                    _stepCount,
+                    stopwatch.elapsedMilliseconds / 1000.0
+                ),
                 Padding(padding: EdgeInsets.all(10)),
                 BPMCard(_bpm, sampling),
                 Padding(padding: EdgeInsets.all(10)),
@@ -246,11 +253,15 @@ class InfoBox extends StatelessWidget {
         borderRadius: BorderRadius.circular(15),
       ),
       child: Text(
-        "$eSenseName Device Status: $deviceStatus\n"
+        "$eSenseName\n"
+            "Device Status: $deviceStatus\n"
             "Steps taken: $stepCount\n"
             "Time elapsed: ${secondsElapsed}s",
         textAlign: TextAlign.center,
-        style: TextStyle(color: Colors.white),
+        style: TextStyle(
+            color: Colors.white,
+            fontSize: 15
+        ),
       ),
     );
   }

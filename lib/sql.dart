@@ -47,7 +47,7 @@ class SongDatabase {
   }
 
   Future<List<SongData>> search(int bpm) async {
-    await _loadDB();
+    if (!initialized) await _loadDB();
     String query = '''SELECT * FROM Songs WHERE BPM = $bpm''';
     List<Map> list = await db.rawQuery(query);
     List <SongData> songs = new List();
