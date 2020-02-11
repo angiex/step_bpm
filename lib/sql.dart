@@ -33,7 +33,7 @@ class SongDatabase {
 
     if (FileSystemEntity.typeSync(path) == FileSystemEntityType.notFound) {
       // Load database from asset and copy
-      ByteData data = await rootBundle.load(join('assets', 'db.db'));
+      ByteData data = await rootBundle.load(join("assets", "db.db"));
       List<int> bytes = data.buffer.asUint8List(
           data.offsetInBytes, data.lengthInBytes);
 
@@ -41,7 +41,7 @@ class SongDatabase {
       await new File(path).writeAsBytes(bytes);
     }
     Directory appDocDir = await getApplicationDocumentsDirectory();
-    String databasePath = join(appDocDir.path, 'asset_database.db');
+    String databasePath = join(appDocDir.path, "asset_database.db");
     db = await openDatabase(databasePath);
     initialized = true;
   }
